@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-EXTENSION=${1:?"Error: The first parameter is missign, It should be an extension."}
+EXTENSION=${1:?"Error: The first parameter is missing, It should be an extension."}
 TRACKED_FILES=$(git --no-pager diff --name-only --cached --diff-filter=AM | grep ".*.${EXTENSION}$")
 
 FILES_WITH_EXTENSION="Tracked files to unstaged with extension ($EXTENSION):"
