@@ -65,27 +65,25 @@ warning() {
   echo "[🟡 $(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
 }
 
-git rev-parse --is-inside-work-tree || { error ${ERROR_REPO}; return 1; }
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { error ${ERROR_REPO}; return 1; }
 
 staged_files=$(git --no-pager diff --name-only --cached --diff-filter=AM \
   | grep ".*.${extension}$")
 
-if [[ ${staged_files} ]]; then
+if [[ -n ${staged_files} ]]; then
   let counter=0
   line=$(echo "${staged_files}" | grep ".*.${extension}$" \
     | while read staged_file; do
-    let "counter+=1"
-    echo "\"${staged_file}\" \"${counter}\" off"
-    done)
-  echo ${line};
-  selected_files=$(echo ${line} |
-    xargs dialog --stdout --checklist ${TITLE_MSG} 0 0 0)
-  [[ "${selected_files}" != "" ]] \
+        let "counter+=1"
+        echo "\"${staged_file}\" \"${counter}\" off"
+      done)
+  selected_files=$(echo ${line} | xargs dialog --stdout --checklist ${TITLE_MSG} 0 0 0)
+  [[ -n "${selected_files}" ]] \
     && echo "${selected_files}" | xargs git restore --staged \
     && echo "${SUCCESS_MSG}" \
     || warning ${WARN_MSG}
 else
-    error ${ERROR_MSG}
-    return 1
+  error ${ERROR_MSG}
+  return 1
 fi
 ```
